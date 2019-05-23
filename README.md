@@ -11,9 +11,9 @@
 LXD 实现虚拟容器
 ZFS 用于管理物理磁盘，支持LXD高级功能
 bridge-utils 用于搭建网桥
-'sudo apt-get install lxd zfsutils-linux bridge-utils'
+' sudo apt-get install lxd zfsutils-linux bridge-utils '
 ### 配置网桥:
 因为学校信息中心网络问题，如果配置桥接网卡，会导致流量异常，直接断网，因此实现每人一个ip的方式失败，不得已我们采用端口转发的方式来实现各个容器的网络
 ### 配置ZFS
 首先，我们运行sudo fdisk -l列出服务器上的可用磁盘和分区，我们有两块硬盘，第一块为系统盘，第二块为数据盘，现在我们将数据盘（/dev/sdb）分出需要使用的空间，作为容器的存储卷。
-'sudo fdisk /dev/sdb'
+' sudo fdisk /dev/sdb '
