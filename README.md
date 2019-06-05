@@ -126,7 +126,7 @@
 >>>### 赋予脚本可执行权限  
 >>>>`sudo chmod a+x install-xrdp-2.3.sh`  
 >>>### 脚本会下载一些文件，需要有Downloads文件夹  
->>>>`mkdir Downloads`  
+>>>>`mkdir -p ~/Downloads`  
 >>>###  安装脚本
 >>>>`./install-xrdp-2.3.sh -s yes -g yes`  
 >>>### 安装完成  
