@@ -118,7 +118,7 @@
 >>>需要注意的是容器里面安装显卡驱动时需要加上后面的参数，安装时不需要安装到内核  
 >>>>`sudo sh ./NVIDIA-Linux-X86_64-[YOURVERSION].run --no-kernel-module`  
 >>## 4.安装远程连接  
->>>### 使用安装脚本（安装git后下载我们之后需要用的东西）  
+>>>### 使用安装脚本（安装git后下载我们之后需要用的东西）  [安装脚本地址](http://c-nergy.be/blog/?p=13432 "安装脚本")  
 >>>>`sudo apt install git`  
 >>>>`git clone https://github.com/shenuiuin/LXD_GPU_SERVER`  
 >>>### 打开文件夹  
