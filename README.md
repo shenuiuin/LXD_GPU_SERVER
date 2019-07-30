@@ -215,7 +215,7 @@
 >>## 从模板镜像中新建容器
 >>以后直接用模板镜像来创建容器，容器创建好后还要为它添加显卡（驱动已经有了），还有用lxdui配置它的参数，最后为它添加端口映射
 >>![my-logo.png](image/图片14.png "my-logo") 
-
+># [成果展示（双屏~声音）](https://www.bilibili.com/video/av61400281 "哔哩哔哩") 
 ![my-logo.png](image/图片15.png "my-logo") 
 ![my-logo.png](image/图片16.png "my-logo") 
 ![my-logo.png](image/图片17.png "my-logo") 
