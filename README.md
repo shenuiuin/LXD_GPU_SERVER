@@ -1,10 +1,9 @@
 #  <strong>实验室GPU服务器的LXD虚拟化 <strong>
-实验室GPU服务器的LXD虚拟化
-实验室GPU服务器的LXD虚拟化 实验室破天荒加了台GPU服务器，因为实验室人数比较多，如果用同一台，文件、环境、软件等错乱混杂，有强迫症。。。所以我们做了虚拟化。
+实验室GPU服务器的LXD虚拟化 实验室加了台GPU服务器，因为实验室人数比较多，如果用同一台，文件、环境、软件等错乱混杂，有强迫症。。。所以我们做了虚拟化。
 
 > ## 第一步：宿主机的安装与配置
 >> ### 服务器系统的安装  
->>> 建议安装server版，通过ssh远程 [ubuntu镜像](http://cdimage.ubuntu.com/releases/18.04/release/ubuntu-18.04.2-server-arm64.iso "image")  
+>>> 建议安装server版，通过ssh远程 [ubuntu镜像](http://cdimage.ubuntu.com/releases/18.04/release/ubuntu-18.04.2-server-amd64.iso "image")  
 >>> 服务器一般有一块SSD和多块机械做成的RAID的阵列，系统安装在SSD（比较小）还有一块RAID阵列的数据盘  
 >>### 服务器显卡驱动的安装  
 >>>(如不能访问，在pdf文件夹已经离线好)  
@@ -104,10 +103,12 @@
 >>## 2. 安装图形化界面  
 >>>### 刷新源
 >>>>`sudo apt update`  
->>>### 最小化安装gnome桌面
->>>>`sudo apt install gnome-shell gnome-session gnome-panel gnome-terminal -y`  
+>>>### 完整安装ubuntu桌面(默认安装gnome，不过会有很多无关的软件)
+>>>>`sudo apt install ubuntu-desktop`
+>>>### 或者最小化安装gnome桌面
+>>>>`sudo apt install gnome-shell gnome-session gnome-panel gnome-terminal -y`
 >>## 3.安装远程连接  
->>>### 使用安装脚本（安装git后下载我们之后需要用的东西）  [安装脚本地址](http://c-nergy.be/blog/?p=13432 "安装脚本")  
+>>>### 使用安装脚本（安装git后下载我们之后需要用的东西）  
 >>>>`sudo apt install git`  
 >>>>`git clone https://github.com/shenuiuin/LXD_GPU_SERVER`  
 >>>### 打开文件夹  
@@ -120,26 +121,30 @@
 >>>>`./install-xrdp-2.3.sh -s yes -g yes`  
 >>>### 安装完成  
 >>>![my-logo.png](image/图片6.png "my-logo")  
+>>>### 如果有其他桌面的需求
+>>> [kde桌面环境以及xrdp安装](https://www.hiroom2.com/2018/05/07/ubuntu-1804-xrdp-kde-en/ "kde")   
+>>> [xrdp解决声音重定向](http://c-nergy.be/blog/?p=12469 "redirect Sound") 
 >>## 4. 远程连接测试  
 >>>### 端口转发   
 >>>在安装好XRDP后，与之前一样，因为我们ping不通容器，所以我们需要将xrdp的端口转发到宿主机上  
->>>>`sudo iptables -t nat -A PREROUTING -d 172.22.24.126 -p tcp --dport 60611 -j DNAT --to-destination 10.152.210.183:3389` 
+>>>>`sudo iptables -t nat -A PREROUTING -d 172.22.24.126 -p tcp --dport 60611 -j DNAT --to-destination 10.152.210.183:3389`  
 >>>### 远程连接  
 >>>>60611是我们定的端口号，通过宿主机的60611端口号映射到容器中3389端口号（XRDP默认端口号）  
 >>>可以通过windows的远程连接来使用容器(windows运行mstsc)  
 >>>>![my-logo.png](image/ubuntu.png "my-logo")  
 >>>>接下来就是当普通的ubuntu来使用，比如可以找一些教程：安装完ubuntu必做的事等等  
->>## 5. 为容器添加显卡与安装驱动
+>>## 5. 为容器添加显卡  
 >>>我们回到宿主机  
 >>>### 为容器添加所有GPU:  
 >>>>`lxc config device add yourContainerName gpu gpu`  
 >>>### 添加指定GPU：  
 >>>>`lxc config device add yourContainerName gpu0 gpu id=0`  
->>>## 为容器安装驱动 
+>>>## 安装驱动 
 >>>添加好显卡后，就相当于我们给容器安装了显卡，我们回到容器，然后安装显卡驱动    
 >>>与宿主机的显卡版本必须一致，安装方法参考第一步NVIDIA显卡驱动、CUDN、cuDNN的安装  
 >>>需要注意的是容器里面安装显卡驱动时需要加上后面的参数，安装时不需要安装到内核  
->>>>`sudo sh ./NVIDIA-Linux-X86_64-[YOURVERSION].run --no-kernel-module`  
+>>>>`sudo sh ./NVIDIA-Linux-X86_64-[YOURVERSION].run --no-kernel-module`
+
 ># 第五步：ubuntu的美化等配置  
 >>## icon图标主题  
 >>>`sudo apt update`  
@@ -154,7 +159,7 @@
 >>>还可以个性化你的ubuntu，比如加上最大化最小化按钮  
 >>>![my-logo.png](image/图片8.png "my-logo")  
 >>## gnome扩展  
->>>直接在ubuntu的应用商店安装，推荐的这些扩展   
+>>>推荐的这些扩展   
 >>>![my-logo.png](image/图片9.png "my-logo")   
 >>## 切换中文  
 >>>系统的中文在Language Support。然后添加简体中文的语言将中文拖到第一项，然后应用到整个系统  
