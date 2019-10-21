@@ -37,7 +37,7 @@
 >>>因为我们已经创建好了一个叫zfs-pool的存储池，所以在lxd初始化时不需要创建新的储存池，之后在进行配置即可  
 >>>### 再次配置
 >>>>`sudo lxc profile edit default`  
->>>### 修改磁盘大小
+>>>### 修改容器内默认磁盘大小
 >>>在配置时还将每个容器的硬盘大小限制为固定大小  
 >>>（如果没有设置，容器里面的磁盘大小为整个储存池的大小）  
 >>>![my-logo.png](image/图片4.png "my-logo")  
@@ -103,8 +103,8 @@
 >>## 2. 安装图形化界面  
 >>>### 刷新源
 >>>>`sudo apt update`  
->>>### 完整安装ubuntu桌面(默认安装gnome，不过会有很多无关的软件)
->>>>`sudo apt install ubuntu-desktop`
+>>>### 安装无推荐软件的ubuntu桌面(默认安装gnome，完整安装会有很多无关的软件)
+>>>>`sudo apt install --no-install-recommends ubuntu-desktop`
 >>>### 或者最小化安装gnome桌面
 >>>>`sudo apt install gnome-shell gnome-session gnome-panel gnome-terminal -y`
 >>## 3.安装远程连接  
@@ -200,24 +200,27 @@
 >>>### 登录lxdui
 >>>安装好后网页登录管理工具  
 >>>http:(宿主机ip):15151  
->>>### 最后一步可以设置lxdui在后台运行
+>>>### 最后一步可以设置lxdui在后台运行  
 >>>>`lxdui start &` 
->>## 为容器修改硬件配置
+>>## 为容器修改硬件配置  
 >>>![my-logo.png](image/图片13.png "my-logo") 
 >>>在这个工具里面可以配置容器的各个参数，我们实验室的宿主机为256G内存，cpu48个核，容器主要用的是显卡，其他的参数按照人数平均分配一下，够用就可以  
+>>>有时候lxdui会出现bug，所以还需要使用命令来操作达到限制参数的目的
+>>>>`lxc config edit YourContainerName`  
+>>>![my-logo.png](image/图片14.png "my-logo") 
 >>## 管理员须知  
 >>>管理员应在桌面上新建使用说明read.txt，写下系统的版本等信息、安装了什么软件、各种注意事项等等  
 
 ># 第七步：容器模板
->>我们把这个配置好的容器当成模板，保存为镜像。
+>>我们把这个配置好的容器当成模板，保存为镜像。  
 >>>## 停止容器  
 >>>>`sudo lxc stop test`  
 >>>## 将test容器保存为ubuntudemo镜像  
 >>>>`sudo lxc publish test --alias ubuntudemo --public`  
 >>## 从模板镜像中新建容器
->>以后直接用模板镜像来创建容器，容器创建好后还要为它添加显卡（驱动已经有了），还有用lxdui配置它的参数，最后为它添加端口映射
->>![my-logo.png](image/图片14.png "my-logo") 
-># [成果展示（双屏~声音）](https://www.bilibili.com/video/av61400281 "哔哩哔哩") 
-![my-logo.png](image/图片15.png "my-logo") 
+>>以后直接用模板镜像来创建容器，容器创建好后还要为它添加显卡（驱动已经有了），还有用lxdui配置它的参数，最后为它添加端口映射  
+>>![my-logo.png](image/图片15.png "my-logo") 
+# [成果展示（双屏~声音）](https://www.bilibili.com/video/av61400281 "哔哩哔哩") 
 ![my-logo.png](image/图片16.png "my-logo") 
 ![my-logo.png](image/图片17.png "my-logo") 
+![my-logo.png](image/图片18.png "my-logo") 
