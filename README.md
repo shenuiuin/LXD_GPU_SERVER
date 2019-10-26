@@ -205,7 +205,7 @@
 >>## 为容器修改硬件配置  
 >>>![my-logo.png](image/图片13.png "my-logo") 
 >>>在这个工具里面可以配置容器的各个参数，我们实验室的宿主机为256G内存，cpu48个核，容器主要用的是显卡，其他的参数按照人数平均分配一下，够用就可以  
->>>有时候lxdui会出现bug，所以还需要使用命令来操作达到限制参数的目的
+>>>有时候lxdui会出现bug，所以还需要使用命令来操作达到限制参数的目的（新容器的参数会继承默认的参数，可在教程第二步的最后编辑`lxc config edit default`）
 >>>>`lxc config edit YourContainerName`  
 >>>![my-logo.png](image/图片14.png "my-logo") 
 >>## 管理员须知  
@@ -224,3 +224,13 @@
 ![my-logo.png](image/图片16.png "my-logo") 
 ![my-logo.png](image/图片17.png "my-logo") 
 ![my-logo.png](image/图片18.png "my-logo") 
+
+
+>>## 在lxd容器中使用docker  
+>>>>`lxc config edit YourContainerName`  
+>>>>在config中添加  
+>>>>`security.nesting: "true"`  
+>>>>`security.privileged: "true"`  
+>>>>然后重启容器  
+>>>>`lxc restart YourContainerName`  
+>>>[安装docker](http://cdimage.ubuntu.com/releases/18.04/release/ubuntu-18.04.2-server-amd64.iso "docker") 
