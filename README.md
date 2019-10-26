@@ -226,9 +226,8 @@
 
 >>## 在lxd容器中使用docker  
 >>>>`lxc config edit YourContainerName`  
->>>>在config中添加  
->>>>`security.nesting: "true"`  
->>>>`security.privileged: "true"`  
->>>>然后重启容器  
+>>>### 在config中添加  
+>>>![my-logo.png](image/图片19.png "my-logo")  
+>>>### 然后重启容器  
 >>>>`lxc restart YourContainerName`  
->>>[安装docker](http://cdimage.ubuntu.com/releases/18.04/release/ubuntu-18.04.2-server-amd64.iso "docker") 
+>>>## [安装docker](http://cdimage.ubuntu.com/releases/18.04/release/ubuntu-18.04.2-server-amd64.iso "docker") 
