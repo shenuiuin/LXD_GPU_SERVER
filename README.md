@@ -1,5 +1,8 @@
 #  <strong>实验室GPU服务器的LXD虚拟化 <strong>
-实验室GPU服务器的LXD虚拟化 实验室加了台GPU服务器，因为实验室人数比较多，如果用同一台，文件、环境、软件等错乱混杂，有强迫症。。。所以我们做了虚拟化。
+实验室加了台GPU服务器用于深度学习，因为实验室人数比较多，但是每个人使用的软件千差万别，多人使用同一台的话，软件，环境，文件，配置杂七杂八。甚至还有小白会运行损害系统的命令  
+![image](image/rm.gif)  
+所以我们做了虚拟化。为什么使用LXD呢，而不是使用最热门的docker呢？  
+两者都是基于lxc虚拟化,而docker作为应用容器，LXD是系统容器（可以安装完整的桌面有没有很赞），更加接近我们的生产环境，想象一下，别人使用docker时，还要自己使用命令上传文件，运行程序。尤其是小白对着黑框框会很头疼。而自己打开远程，打开pycharm，美滋滋。去除什么linux不要用桌面的想法，9102年了，ubuntu桌面已经很稳定了。接下来就来安装使用吧
 
 > ## 第一步：宿主机的安装与配置
 >> ### 服务器系统的安装  
@@ -7,7 +10,7 @@
 >>> 服务器一般有一块SSD和多块机械做成的RAID的阵列，系统安装在SSD（比较小）还有一块RAID阵列的数据盘  
 >>### 服务器显卡驱动的安装  
 >>>(如不能访问，在pdf文件夹已经离线好)  
->>> [显卡驱动安装](https://medium.com/@cjanze/how-to-install-tensorflow-with-gpu-support-on-ubuntu-18-04-lts-with-cuda-10-nvidia-gpu-312a693744b5 "linux显卡驱动安装"), 
+>>> [显卡驱动安装](https://medium.com/@cjanze/how-to-install-tensorflow-with-gpu-support-on-ubuntu-18-04-lts-with-cuda-10-nvidia-gpu-312a693744b5 "linux显卡驱动安装"),  
 >>>安装NVIDIA显卡驱动、CUDA、cuDNN
 
 
@@ -32,7 +35,8 @@
 >>>#### 在块设备 /dev/sdb1 上创建一个ZFS存储池  
 >>>>`sudo lxc storage create zfs-pool zfs source=/dev/sdb1`  
 >>### LXD初始化  
->>>`sudo lxd init`   
+>>>>`sudo lxd init` 
+>>>  
 >>>![my-logo.png](image/图片3.png "my-logo")  
 >>>因为我们已经创建好了一个叫zfs-pool的存储池，所以在lxd初始化时不需要创建新的储存池，之后在进行配置即可  
 >>>### 再次配置
@@ -79,14 +83,14 @@
 >>>
 >>>>60610是我们定的端口号，通过宿主机的60601端口号映射到容器中22端口号（SSH默认端口号）
  
-># 第四步：容器的配置  
->>## ssh连接容器并配置  
+># 第四步：初始容器的配置  
+>>## 使用ssh连接容器并配置  
 >>>`ssh ubuntu@172.22.24.126 -p 60601`
 >>## 1. 更换源  
 >>>### 备份原来的源  
 >>>>`sudo mv /etc/apt/sources.list  /etc/apt/sources.list.bak`  
->>>### 编辑写入网易源  
->>>### （注意系统版本 ubuntu 18.04）  
+>>>### 编辑写入网易源  （中国源）
+>>>### （注意系统版本 ubuntu 18.04 bionic）  
 >>>>`sudo vim /etc/apt/sources.list`  
 >>>```
 >>>deb http://mirrors.163.com/ubuntu/ bionic main restricted universe multiverse
@@ -191,23 +195,16 @@
 >>>>`sudo netfilter-persistent save`  
 >>>### 恢复保存的转发规则  
 >>>>`sudo netfilter-persistent reload`  
->>## lxdui-更简单的方式管理容器  
->>>![my-logo.png](image/图片12.png "my-logo")   
->>>### 下载运行
->>>地址：[lxdui](https://github.com/AdaptiveScale/lxdui "lxdui")  
->>>安装lxdui之前需要安装python3-dev，不然会出错  
->>>>`sudo apt install python3-dev`  
->>>### 登录lxdui
->>>安装好后网页登录管理工具  
->>>http:(宿主机ip):15151  
->>>### 最后一步可以设置lxdui在后台运行  
->>>>`lxdui start &` 
->>## 为容器修改硬件配置  
->>>![my-logo.png](image/图片13.png "my-logo") 
->>>在这个工具里面可以配置容器的各个参数，我们实验室的宿主机为256G内存，cpu48个核，容器主要用的是显卡，其他的参数按照人数平均分配一下，够用就可以  
->>>有时候lxdui会出现bug，所以还需要使用命令来操作达到限制参数的目的（新容器的参数会继承默认的参数，可在教程第二步的最后编辑`lxc config edit default`）
->>>>`lxc config edit YourContainerName`  
+>>## 为容器修改参数配置  
+>>>我们不想每个人使用全部的硬件资源，所以还需要限制每个人的参数  
+>>[容器参数配置说明](https://linuxcontainers.org/lxd/docs/master/containers "Container configuration")  
+>>>### 配置容器参数
+>>>> `lxc config edit YourContainerName`   
+>>>###  一般使用以下的配置即可满足
 >>>![my-logo.png](image/图片14.png "my-logo") 
+>>>其实在教程第二步的最后编辑默认磁盘大小的时候就已经在操作了（default）
+>>> ### 配置默认容器参数（新容器的参数会继承default配置的参数，容器会优先使用自己的参数）  
+>>>> `lxc config edit default`  
 >>## 管理员须知  
 >>>管理员应在桌面上新建使用说明read.txt，写下系统的版本等信息、安装了什么软件、各种注意事项等等  
 
@@ -218,7 +215,8 @@
 >>>## 将test容器保存为ubuntudemo镜像  
 >>>>`sudo lxc publish test --alias ubuntudemo --public`  
 >>## 从模板镜像中新建容器
->>以后直接用模板镜像来创建容器，容器创建好后还要为它添加显卡（驱动已经有了），还有用lxdui配置它的参数，最后为它添加端口映射  
+>>以后直接用模板镜像来创建容器，容器创建好后为它添加端口映射（远程连接与SSH）  
+>>还要为它添加显卡（显卡驱动已经有了）并配置它的硬件参数，(可使用默认配置文件，使得新容器的参数继承于它，这一步就可以省略)
 >>![my-logo.png](image/图片15.png "my-logo") 
 # [成果展示（双屏~声音）](https://www.bilibili.com/video/av61400281 "哔哩哔哩") 
 ![my-logo.png](image/图片16.png "my-logo") 
