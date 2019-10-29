@@ -204,7 +204,7 @@
 >>>![my-logo.png](image/图片14.png "my-logo") 
 >>>其实在教程第二步的最后编辑默认磁盘大小的时候就已经在操作了（default）
 >>> ### 配置默认容器参数（新容器的参数会继承default配置的参数，容器会优先使用自己的参数）  
->>>> `lxc config edit default`  
+>>>> `sudo lxc profile edit default`  
 >>## 管理员须知  
 >>>管理员应在桌面上新建使用说明read.txt，写下系统的版本等信息、安装了什么软件、各种注意事项等等  
 
