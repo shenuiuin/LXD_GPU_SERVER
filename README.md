@@ -6,7 +6,7 @@
 
 > ## 第一步：宿主机的安装与配置
 >> ### 服务器系统的安装  
->>> 建议安装server版，通过ssh远程 [ubuntu镜像](http://cdimage.ubuntu.com/releases/18.04/release/ubuntu-18.04.2-server-amd64.iso "image")  
+>>> 建议安装server版，通过ssh远程 [ubuntu镜像](http://cdimage.ubuntu.com/releases/18.04.3/release/ "image")  
 >>> 服务器一般有一块SSD和多块机械做成的RAID的阵列，系统安装在SSD（比较小）还有一块RAID阵列的数据盘  
 >>### 服务器显卡驱动的安装  
 >>>(如不能访问，在pdf文件夹已经离线好)  
@@ -230,4 +230,4 @@
 >>>![my-logo.png](image/图片19.png "my-logo")  
 >>>### 然后重启容器  
 >>>>`lxc restart YourContainerName`  
->>>## [安装docker](http://cdimage.ubuntu.com/releases/18.04/release/ubuntu-18.04.2-server-amd64.iso "docker") 
+>>>## [安装docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/ "docker") 
