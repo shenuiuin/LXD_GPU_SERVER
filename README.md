@@ -114,8 +114,9 @@
 >>>添加好显卡后，就相当于我们给容器安装了显卡，我们回到容器，然后安装显卡驱动    
 >>>与宿主机的显卡版本必须一致，安装方法参考第一步NVIDIA显卡驱动、CUDN、cuDNN的安装  
 >>>需要注意的是容器里面安装显卡驱动时需要加上后面的参数，安装时不需要安装到内核  
->>>>`sudo sh ./NVIDIA-Linux-X86_64-[YOURVERSION].run --no-kernel-module`
->>>到了这一步可以看第七步：容器模板，将server版的导出为镜像，可供不需要桌面的同学使用
+>>>>`sudo sh ./NVIDIA-Linux-X86_64-[YOURVERSION].run --no-kernel-module`  
+>>>### 到了这一步可以看第七步：容器模板，将server版的导出为镜像，可供不需要桌面的同学使用
+>>>### 到了这一步可以看第七步：容器模板，将server版的导出为镜像，可供不需要桌面的同学使用
 >>## 3. 安装图形化界面  
 >>>### 刷新源
 >>>>`sudo apt update`  
@@ -237,6 +238,10 @@
 >>### 然后重启容器  
 >>>`lxc restart YourContainerName`  
 >>## [安装docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/ "docker") 
+>## 共享目录
+>>path1为宿主机路径，path2为容器内路径。
+>>>`lxc config set yourContainerName security.privileged true`  
+>>>`lxc config device add privilegedContainerName shareName disk source=path1 path=path2`  
 >## 使用自定义lxd容器  
 >>### 上述lxd容器只能使用镜像源中，但如果我们想使用自己喜欢的发行版，或者自己已经有一台各方面已经调教满意的linux实体机，不想折腾了。这时候我们便可以将此系统移植到lxd中
 >>### 接下来我以manjaro为例演示
@@ -247,12 +252,12 @@
 >>### 创建以下配置文件 `/etc/X11/Xwrapper.config`
 >>>`allowed_users=anybody`  
 >>>`needs_root_rights=auto`
->>### 修改pam.d  `/etc/pam.d/xrdp-sesman`
+>>### 修改pam.d `/etc/pam.d/xrdp-sesman`
 >>>`auth      include   system-remote-login`  
 >>>`account   include   system-remote-login`  
 >>>`password  include   system-remote-login`  
 >>>`session   include   system-remote-login`  
->>### 修改~/.xinitrc
+>>### 修改 `~/.xinitrc`
 >>>找到这行  
 >>>`local dbus_args=(--sh-syntax --e10.240.135.158xit-with-session)`  
 >>>改为  
@@ -302,7 +307,7 @@
 >>>`ip link set eth0 up`  
 >>>`dhcpcd eth0`  
 >>![manjaro05.png](image/manjaro05.png "manjaro_net") 
->>### 接下来就是为新容器添加显卡，并配置它的硬件参数，安装与宿主机一样版本的NVIDIA、CUDA、cuDNN驱动
+>>### 接下来就是为新容器添加显卡，并配置它的硬件参数，安装与宿主机一样版本的NVIDIA、CUDA、cuDNN驱动(可能会遇到gcc版本问题，降级即可)
 >>### 目前测试成功的有manjaro、deepin（deepin15.11的xrdp连接后dock栏消失，作死升级uos后无异常，因此deepin v20也能成功）
 >>![manjaro06.png](image/manjaro06.png "manjaro_test") 
 >>![deepin.png](image/deepin.png "deepin_test") 
