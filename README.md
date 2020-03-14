@@ -6,7 +6,7 @@
 
 > ## 第一步：宿主机的安装与配置
 >> ### 服务器系统的安装  
->>> 建议安装server版，通过ssh远程 [ubuntu镜像](http://cdimage.ubuntu.com/releases/18.04.3/release/ "image")  
+>>> 建议安装server版，通过ssh远程 [ubuntu镜像](http://cdimage.ubuntu.com/releases/18.04/release/ "image")  
 >>> 服务器一般有一块SSD和多块机械做成的RAID的阵列，系统安装在SSD（比较小）还有一块RAID阵列的数据盘  
 >>### 服务器显卡驱动的安装  
 >>>(如不能访问，在pdf文件夹已经离线好)  
@@ -104,40 +104,7 @@
 >>>deb http://mirrors.163.com/ubuntu/ bionic-backports main restricted universe multiverse
 >>>deb-src http://mirrors.163.com/ubuntu/ bionic-backports main restricted universe multiverse
 >>>```  
->>## 2. 安装图形化界面  
->>>### 刷新源
->>>>`sudo apt update`  
->>>### 安装无推荐软件的ubuntu桌面(默认安装gnome，完整安装会有很多无关的软件)
->>>>`sudo apt install --no-install-recommends ubuntu-desktop`
->>>### 或者最小化安装gnome桌面
->>>>`sudo apt install gnome-shell gnome-session gnome-panel gnome-terminal -y`
->>## 3.安装远程连接  
->>>### 使用安装脚本（安装git后下载我们之后需要用的东西）  
->>>>`sudo apt install git`  
->>>>`git clone https://github.com/shenuiuin/LXD_GPU_SERVER`  
->>>### 打开文件夹  
->>>>`cd LXD_GPU_SERVER/`  
->>>### 赋予脚本可执行权限  
->>>>`sudo chmod a+x install-xrdp-2.3.sh`  
->>>### 脚本会下载一些文件，需要有Downloads文件夹  
->>>>`mkdir -p ~/Downloads`  
->>>###  安装脚本
->>>>`./install-xrdp-2.3.sh -s yes -g yes`  
->>>### 安装完成  
->>>![my-logo.png](image/图片6.png "my-logo")  
->>>### 如果有其他桌面的需求
->>> [kde桌面环境以及xrdp安装](https://www.hiroom2.com/2018/05/07/ubuntu-1804-xrdp-kde-en/ "kde")   
->>> [xrdp解决声音重定向](http://c-nergy.be/blog/?p=12469 "redirect Sound") 
->>## 4. 远程连接测试  
->>>### 端口转发   
->>>在安装好XRDP后，与之前一样，因为我们ping不通容器，所以我们需要将xrdp的端口转发到宿主机上  
->>>>`sudo iptables -t nat -A PREROUTING -d 172.22.24.126 -p tcp --dport 60611 -j DNAT --to-destination 10.152.210.183:3389`  
->>>### 远程连接  
->>>>60611是我们定的端口号，通过宿主机的60611端口号映射到容器中3389端口号（XRDP默认端口号）  
->>>可以通过windows的远程连接来使用容器(windows运行mstsc)  
->>>>![my-logo.png](image/ubuntu.png "my-logo")  
->>>>接下来就是当普通的ubuntu来使用，比如可以找一些教程：安装完ubuntu必做的事等等  
->>## 5. 为容器添加显卡  
+>>## 2. 为容器添加显卡  
 >>>我们回到宿主机  
 >>>### 为容器添加所有GPU:  
 >>>>`lxc config device add yourContainerName gpu gpu`  
@@ -148,6 +115,43 @@
 >>>与宿主机的显卡版本必须一致，安装方法参考第一步NVIDIA显卡驱动、CUDN、cuDNN的安装  
 >>>需要注意的是容器里面安装显卡驱动时需要加上后面的参数，安装时不需要安装到内核  
 >>>>`sudo sh ./NVIDIA-Linux-X86_64-[YOURVERSION].run --no-kernel-module`
+>>>到了这一步可以看第七步：容器模板，将server版的导出为镜像，可供不需要桌面的同学使用
+>>## 3. 安装图形化界面  
+>>>### 刷新源
+>>>>`sudo apt update`  
+>>>### 安装无推荐软件的ubuntu桌面(默认安装gnome，完整安装会有很多无关的软件)
+>>>>`sudo apt install --no-install-recommends ubuntu-desktop`
+>>>### 或者最小化安装gnome桌面
+>>>>`sudo apt install gnome-shell gnome-session gnome-panel gnome-terminal -y`
+>>## 4.安装远程连接  
+>>>### <s>使用安装脚本（安装git后下载我们之后需要用的东西）  </s>  
+>>>><s>`sudo apt install git`  </s>  
+>>>><s>`git clone https://github.com/shenuiuin/LXD_GPU_SERVER`  </s>  
+>>>### <s>打开文件夹  </s>  
+>>>><s>`cd LXD_GPU_SERVER/`  </s>  
+>>>### <s>赋予脚本可执行权限  </s>  
+>>>><s>`sudo chmod a+x install-xrdp-2.3.sh`  </s>  
+>>>### <s>脚本会下载一些文件，需要有Downloads文件夹  </s>  
+>>>><s>`mkdir -p ~/Downloads`  </s>  
+>>>###  <s>安装脚本</s>  
+>>>><s>`./install-xrdp-2.3.sh -s yes -g yes`  </s>  
+>>>### <s>安装完成  </s>  
+>><s>![my-logo.png](image/图片6.png "my-logo")  </s>
+>>>### ubunt18.04.4安装脚本不兼容，推荐安装其他桌面，或者可以持续关注[脚本原地址等待更新](http://c-nergy.be/blog/?cat=79 "xrdp.sh")  
+>>>### 如果有其他桌面的需求
+>>> [kde桌面环境以及xrdp安装](https://www.hiroom2.com/2018/05/07/ubuntu-1804-xrdp-kde-en/ "kde")   
+>>> [xfce桌面环境以及xrdp安装](https://www.hiroom2.com/2018/05/07/ubuntu-1804-xrdp-xfce-en/ "xfce")   
+>>> [xrdp解决声音重定向](http://c-nergy.be/blog/?p=12469 "redirect Sound") 
+>>## 5. 远程连接测试  
+>>>### 端口转发   
+>>>在安装好XRDP后，与之前一样，因为我们ping不通容器，所以我们需要将xrdp的端口转发到宿主机上  
+>>>>`sudo iptables -t nat -A PREROUTING -d 172.22.24.126 -p tcp --dport 60611 -j DNAT --to-destination 10.152.210.183:3389`  
+>>>### 远程连接  
+>>>>60611是我们定的端口号，通过宿主机的60611端口号映射到容器中3389端口号（XRDP默认端口号）  
+>>>可以通过windows的远程连接来使用容器(windows运行mstsc)  
+>>>>![my-logo.png](image/ubuntu.png "my-logo")  
+>>>>接下来就是当普通的ubuntu来使用，比如可以找一些教程：安装完ubuntu必做的事等等  
+
 
 ># 第五步：ubuntu的美化等配置  
 >>## icon图标主题  
@@ -194,7 +198,9 @@
 >>>### 保存规则（防止重启后转发表丢失）
 >>>>`sudo netfilter-persistent save`  
 >>>### 恢复保存的转发规则  
->>>>`sudo netfilter-persistent reload`  
+>>>>`sudo netfilter-persistent reload`
+>>>### 查看zfs储存卷的占用情况
+>>>`zpool list`  
 >>## 为容器修改参数配置  
 >>>我们不想每个人使用全部的硬件资源，所以还需要限制每个人的参数  
 >>[容器参数配置说明](https://linuxcontainers.org/lxd/docs/master/containers "Container configuration")  
@@ -223,11 +229,80 @@
 ![my-logo.png](image/图片17.png "my-logo") 
 ![my-logo.png](image/图片18.png "my-logo") 
 
-
->>## 在lxd容器中使用docker  
->>>>`lxc config edit YourContainerName`  
->>>### 在config中添加  
->>>![my-logo.png](image/图片19.png "my-logo")  
->>>### 然后重启容器  
->>>>`lxc restart YourContainerName`  
->>>## [安装docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/ "docker") 
+># 番外
+>## 在lxd容器中使用docker  
+>>>`lxc config edit YourContainerName`  
+>>### 在config中添加  
+>>![my-logo.png](image/图片19.png "my-logo")  
+>>### 然后重启容器  
+>>>`lxc restart YourContainerName`  
+>>## [安装docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/ "docker") 
+>## 使用自定义lxd容器  
+>>### 上述lxd容器只能使用镜像源中，但如果我们想使用自己喜欢的发行版，或者自己已经有一台各方面已经调教满意的linux实体机，不想折腾了。这时候我们便可以将此系统移植到lxd中
+>>### 接下来我以manjaro为例演示
+>>![my-logo.png](image/manjaro01.png "my-logo") 
+>>### [首先为manjaro安装远程——XRDP](https://qiita.com/hisadg/items/cf58d3f4e3ededcffca4 "manjaro安装XRDP") 
+>>### 启用aur,安装xrdp、xorgxrdp
+>>>`yay -S xrdp xorgxrdp`  
+>>### 创建以下配置文件 `/etc/X11/Xwrapper.config`
+>>>`allowed_users=anybody`  
+>>>`needs_root_rights=auto`
+>>### 修改pam.d  `/etc/pam.d/xrdp-sesman`
+>>>`auth      include   system-remote-login`  
+>>>`account   include   system-remote-login`  
+>>>`password  include   system-remote-login`  
+>>>`session   include   system-remote-login`  
+>>### 修改~/.xinitrc
+>>>找到这行  
+>>>`local dbus_args=(--sh-syntax --e10.240.135.158xit-with-session)`  
+>>>改为  
+>>>`local dbus_args=(--sh-syntax)` 
+>>### 启动服务与添加开机自启
+>>>`sudo systemctl enable xrdp`  
+>>>`sudo systemctl enable xrdp-sesman`  
+>>>`sudo systemctl start xrdp`  
+>>>`sudo systemctl start xrdp-sesman`  
+>>### 测试远程连接，虚拟机可能需要桥接网卡才能访问
+>>![manjaro-rdp.png](image/manjaro02.png "manjaro-rdp") 
+>>### 准备一个linux live cd,可以使用ubuntu、manjaro等，实体机需要制作启动盘，使用rufus刻录即可
+>>### 实体机U盘启动，虚拟机直接挂载镜像
+>>### 查看分区
+>>>`sudo fdisk -l`  
+>>![manjaro03.png](image/manjaro03.png "manjaro_disk") 
+>>### 这里`/dev/sda1`分区是安装的系统的根目录，我们将他挂载出来
+>>### 如果还有其他的挂载点也需要挂载到/data1的相应目录，保证系统文件的完整性
+>>>`sudo mkdir /data1`  
+>>>`sudo mount /dev/sda1 /data1`    
+>>### 这里`/dev/sdb`是我新加的一块硬盘，作为打包文件存放的地方，现在格式化并挂载，实体机可以直接挂载其他分区作为存放的地方
+>>>`sudo mkfs -t ext4 /dev/sdb`  
+>>>`sudo mkdir /data2`  
+>>>`sudo mount /dev/sdb /data2`  
+>>### 打包系统文件到/data2目录
+>>>`cd /data2`  
+>>>`sudo tar -cvzf rootfs.tar.gz -C /data1 .`  
+>>### 创建metadata.yaml文件，根据自己的需要修改
+>>>`architecture: "x86_64"`  
+>>>`creation_date: 1584170077 # To get current date in Unix time, use `date +%s` command`  
+>>>`properties:`  
+>>>`architecture: "x86_64"`  
+>>>`description: "manjaro_i3wm_xrdp"`  
+>>>`os: "manjarolinux"`  
+>>>`release: "kyina"`  
+>>### 打包metadata.yaml文件
+>>>`tar -cvzf metadata.tar.gz metadata.yaml`
+>>### 将这两个文件上传到服务器的同一个文件夹
+>>### 现在我们连接到服务器，切换到那两个文件的目录
+>>### 导入镜像
+>>>`lxc image import metadata.tar.gz rootfs.tar.gz --alias manjaro_demo`
+>>### 接下来便可以当做正常的镜像使用
+>>![manjaro04.png](image/manjaro04.png "manjaro_test") 
+>>### 在lxd-3.0.3版本中的arch系不能自动获取ipv4，可以安装更高版本的lxd，或者每次重启容器时进容器手动获取
+>>>`lxc exec manjaro-test bash`  
+>>>`ip a`  
+>>>`ip link set eth0 up`  
+>>>`dhcpcd eth0`  
+>>![manjaro05.png](image/manjaro05.png "manjaro_net") 
+>>### 接下来就是为新容器添加显卡，并配置它的硬件参数，安装与宿主机一样版本的NVIDIA、CUDA、cuDNN驱动
+>>### 目前测试成功的有manjaro、deepin（deepin15.11的xrdp连接后dock栏消失，作死升级uos后无异常，因此deepin v20也能成功）
+>>![manjaro06.png](image/manjaro06.png "manjaro_test") 
+>>![deepin.png](image/deepin.png "deepin_test") 
