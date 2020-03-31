@@ -115,8 +115,7 @@
 >>>与宿主机的显卡版本必须一致，安装方法参考第一步NVIDIA显卡驱动、CUDN、cuDNN的安装  
 >>>需要注意的是容器里面安装显卡驱动时需要加上后面的参数，安装时不需要安装到内核  
 >>>>`sudo sh ./NVIDIA-Linux-X86_64-[YOURVERSION].run --no-kernel-module`  
->>>### 到了这一步可以看第七步：容器模板，将server版的导出为镜像，可供不需要桌面的同学使用
->>>### 到了这一步可以看第七步：容器模板，将server版的导出为镜像，可供不需要桌面的同学使用
+>>>### 到了这一步可以看第七步：容器模板，将server版的导出为镜像，可供不需要桌面的同学使用（通过ssh连接）
 >>## 3. 安装图形化界面  
 >>>### 刷新源
 >>>>`sudo apt update`  
@@ -308,6 +307,6 @@
 >>>`dhcpcd eth0`  
 >>![manjaro05.png](image/manjaro05.png "manjaro_net") 
 >>### 接下来就是为新容器添加显卡，并配置它的硬件参数，安装与宿主机一样版本的NVIDIA、CUDA、cuDNN驱动(可能会遇到gcc版本问题，降级即可)
->>### 目前测试成功的有manjaro、deepin（deepin15.11的xrdp连接后dock栏消失，作死升级uos后无异常，因此deepin v20也能成功）
+>>### 目前测试成功的有manjaro、deepin（deepin直接安装xrdp即可使用。但deepin15.11的xrdp连接后dock栏消失，为15.11版本BUG，作死升级uos后无异常，因此deepin v20也能成功）
 >>![manjaro06.png](image/manjaro06.png "manjaro_test") 
 >>![deepin.png](image/deepin.png "deepin_test") 
