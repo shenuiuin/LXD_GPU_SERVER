@@ -29,7 +29,7 @@
 >>>>`sudo fdisk /dev/sdb`  
 >>>
 >>>![my-logo.png](image/图片1.png "my-logo")  
->>>按照下图分出了80GB的分区作为容器的存储卷，分区为/dev/sdb1，剩下的空间同理可以分区，可以作为服务器另外的应用使用  
+>>>按照下图分出了80GB的分区作为容器的存储卷，分区为/dev/sdb1，剩下的空间同理可以分区，可以作为服务器另外的应用使用，比如可以搭建一个[实验室内部网盘(点此链接)](https://github.com/shenuiuin/nextcloud "nextcloud") 
 >>>![my-logo.png](image/图片2.png "my-logo")  
 >>### 创建块设备  
 >>>#### 在块设备 /dev/sdb1 上创建一个ZFS存储池  
