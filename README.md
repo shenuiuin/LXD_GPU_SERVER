@@ -29,7 +29,7 @@
 >>>>`sudo fdisk /dev/sdb`  
 >>>
 >>>![my-logo.png](image/图片1.png "my-logo")  
->>>按照下图分出了80GB的分区作为容器的存储卷，分区为/dev/sdb1，剩下的空间同理可以分区，可以作为服务器另外的应用使用，比如可以搭建一个[实验室内部网盘(点此链接)](https://github.com/shenuiuin/nextcloud "nextcloud") 
+>>>按照下图分出了80GB的分区作为容器的存储卷，分区为/dev/sdb1，剩下的空间同理可以分区，可以作为服务器另外的应用使用  
 >>>![my-logo.png](image/图片2.png "my-logo")  
 >>### 创建块设备  
 >>>#### 在块设备 /dev/sdb1 上创建一个ZFS存储池  
@@ -115,29 +115,27 @@
 >>>与宿主机的显卡版本必须一致，安装方法参考第一步NVIDIA显卡驱动、CUDN、cuDNN的安装  
 >>>需要注意的是容器里面安装显卡驱动时需要加上后面的参数，安装时不需要安装到内核  
 >>>>`sudo sh ./NVIDIA-Linux-X86_64-[YOURVERSION].run --no-kernel-module`  
->>>### 到了这一步可以看第七步：容器模板，将server版的导出为镜像，可供不需要桌面的同学使用（通过ssh连接）
+>>>### 到了这一步可以看第七步：容器模板，将server版的容器导出为镜像，可供不需要桌面的同学使用
 >>## 3. 安装图形化界面  
 >>>### 刷新源
 >>>>`sudo apt update`  
 >>>### 安装无推荐软件的ubuntu桌面(默认安装gnome，完整安装会有很多无关的软件)
 >>>>`sudo apt install --no-install-recommends ubuntu-desktop`
->>>### 或者最小化安装gnome桌面
->>>>`sudo apt install gnome-shell gnome-session gnome-panel gnome-terminal -y`
 >>## 4.安装远程连接  
->>>### <s>使用安装脚本（安装git后下载我们之后需要用的东西）  </s>  
->>>><s>`sudo apt install git`  </s>  
->>>><s>`git clone https://github.com/shenuiuin/LXD_GPU_SERVER`  </s>  
->>>### <s>打开文件夹  </s>  
->>>><s>`cd LXD_GPU_SERVER/`  </s>  
->>>### <s>赋予脚本可执行权限  </s>  
->>>><s>`sudo chmod a+x install-xrdp-2.3.sh`  </s>  
->>>### <s>脚本会下载一些文件，需要有Downloads文件夹  </s>  
->>>><s>`mkdir -p ~/Downloads`  </s>  
->>>###  <s>安装脚本</s>  
->>>><s>`./install-xrdp-2.3.sh -s yes -g yes`  </s>  
->>>### <s>安装完成  </s>  
->><s>![my-logo.png](image/图片6.png "my-logo")  </s>
->>>### ubunt18.04.4安装脚本不兼容，推荐安装其他桌面，或者可以持续关注[脚本原地址等待更新](http://c-nergy.be/blog/?cat=79 "xrdp.sh")  
+>>>### 使用安装脚本（安装git后下载我们之后需要用的东西）    
+>>>>`sudo apt install git`   
+>>>>`git clone https://github.com/shenuiuin/LXD_GPU_SERVER`    
+>>>### 打开文件夹    
+>>>>`cd LXD_GPU_SERVER/`    
+>>>### 赋予脚本可执行权限    
+>>>>`sudo chmod a+x xrdp-installer-1.2.sh`   
+>>>### 脚本会下载一些文件，需要有Downloads文件夹    
+>>>>`mkdir -p ~/Downloads`    
+>>>###  安装脚本  
+>>>>`./xrdp-installer-1.2.sh -c -l -s`    
+>>>### 安装完成    
+>>![my-logo.png](image/图片6.png "my-logo")  
+>>>### [脚本源地址](http://c-nergy.be/blog/?cat=79 "xrdp.sh")  
 >>>### 如果有其他桌面的需求
 >>> [kde桌面环境以及xrdp安装](https://www.hiroom2.com/2018/05/07/ubuntu-1804-xrdp-kde-en/ "kde")   
 >>> [xfce桌面环境以及xrdp安装](https://www.hiroom2.com/2018/05/07/ubuntu-1804-xrdp-xfce-en/ "xfce")   
@@ -214,7 +212,7 @@
 >>## 管理员须知  
 >>>管理员应在桌面上新建使用说明read.txt，写下系统的版本等信息、安装了什么软件、各种注意事项等等  
 
-># 第七步：容器模板
+># 第七步：容器模板  
 >>我们把这个配置好的容器当成模板，保存为镜像。  
 >>>## 停止容器  
 >>>>`sudo lxc stop test`  
@@ -238,9 +236,11 @@
 >>>`lxc restart YourContainerName`  
 >>## [安装docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/ "docker") 
 >## 共享目录
->>path1为宿主机路径，path2为容器内路径。
+>>### path1为宿主机路径，path2为容器内路径。
 >>>`lxc config set yourContainerName security.privileged true`  
 >>>`lxc config device add privilegedContainerName shareName disk source=path1 path=path2`  
+>>### 若容器内沒有对共享目录沒有权限，只需将宿主机目录路径权限给足  
+>>>`sudo chmod -R 777 path1`
 >## 使用自定义lxd容器  
 >>### 上述lxd容器只能使用镜像源中，但如果我们想使用自己喜欢的发行版，或者自己已经有一台各方面已经调教满意的linux实体机，不想折腾了。这时候我们便可以将此系统移植到lxd中
 >>### 接下来我以manjaro为例演示
@@ -300,13 +300,13 @@
 >>>`lxc image import metadata.tar.gz rootfs.tar.gz --alias manjaro_demo`
 >>### 接下来便可以当做正常的镜像使用
 >>![manjaro04.png](image/manjaro04.png "manjaro_test") 
->>### 在lxd-3.0.3版本中的arch系不能自动获取ipv4，可以安装更高版本的lxd，或者每次重启容器时进容器手动获取
+>>### 在lxd-3.0.3版本中的arch系不能自动获取ipv4，可以安装更高版本的lxd(使用snap安装)，或者每次重启容器时进容器手动获取
 >>>`lxc exec manjaro-test bash`  
 >>>`ip a`  
 >>>`ip link set eth0 up`  
 >>>`dhcpcd eth0`  
 >>![manjaro05.png](image/manjaro05.png "manjaro_net") 
 >>### 接下来就是为新容器添加显卡，并配置它的硬件参数，安装与宿主机一样版本的NVIDIA、CUDA、cuDNN驱动(可能会遇到gcc版本问题，降级即可)
->>### 目前测试成功的有manjaro、deepin（deepin直接安装xrdp即可使用。但deepin15.11的xrdp连接后dock栏消失，为15.11版本BUG，作死升级uos后无异常，因此deepin v20也能成功）
+>>### 目前测试成功的有manjaro、deepin（deepin15.11的xrdp连接后dock栏消失，作死升级uos后无异常，因此deepin v20也能成功）
 >>![manjaro06.png](image/manjaro06.png "manjaro_test") 
 >>![deepin.png](image/deepin.png "deepin_test") 
