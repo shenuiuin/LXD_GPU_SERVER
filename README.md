@@ -22,7 +22,7 @@
 >>>#### 安装LXD、ZFS和bridge-utils  
 >>>>`sudo apt-get install lxd zfsutils-linux bridge-utils`
 >>### 配置网桥:
->>>因为学校信息中心网络问题，如果配置桥接网卡，会导致流量异常，直接断网，因此实现每人一个ip的方式失败，不得已我们采用端口转发的方式来实现各个容器的网络
+>>>因为学校信息中心网络的限制，如果配置桥接网卡，会导致流量异常，直接断网，因此实现每人一个ip的方式失败，不得已我们采用端口监听的方式来实现各个容器的连接(如果你不想使用监听的方式请自行上网查询LXD配置桥接网卡)
 >>### 配置ZFS
 >>>首先，我们运行sudo fdisk -l列出服务器上的可用磁盘和分区，我们有两块硬盘，第一块为系统盘，第二块为数据盘，现在我们将数据盘（/dev/sdb）分出需要使用的空间，作为容器的存储卷。  
 >>>### 查看分区
@@ -68,7 +68,7 @@
 >>>`apt install ssh`  
 >>## 通过ssh连接容器 
 >>>### 查看容器与宿主机的ip  
->>>>因为我们没有设置桥接网卡，不能从外部电脑访问容器（不能ping通容器的ip），因此我们采用端口转发的方式来访问我们的容器，所以
+>>>>因为我们没有设置桥接网卡，不能从外部电脑访问容器（不能ping通容器的ip），因此我们采用端口监听的方式来访问我们的容器。
 >>>>#### 退出容器  
 >>>>>`exit`  
 >>>>#### 在宿主机查看容器  
@@ -79,9 +79,9 @@
 >>>>>`ip addr`  
 >>>>#### 可知宿主机ip为172.22.24.126  
 >>>## 端口转发  
->>>>`sudo iptables -t nat -A PREROUTING -d 172.22.24.126 -p tcp --dport 60601 -j DNAT --to-destination 10.152.210.183:22`  
+>>>>`sudo lxc config device add test proxy0 proxy listen=tcp:172.22.24.126:60601 connect=tcp:10.152.210.183:22 bind=host`  
 >>>
->>>>60610是我们定的端口号，通过宿主机的60601端口号映射到容器中22端口号（SSH默认端口号）
+>>>>60601是我们定的端口号，通过宿主机的60601端口号监听容器中22端口号（SSH默认端口号）
  
 ># 第四步：初始容器的配置  
 >>## 使用ssh连接容器并配置  
@@ -115,7 +115,7 @@
 >>>与宿主机的显卡版本必须一致，安装方法参考第一步NVIDIA显卡驱动、CUDN、cuDNN的安装  
 >>>需要注意的是容器里面安装显卡驱动时需要加上后面的参数，安装时不需要安装到内核  
 >>>>`sudo sh ./NVIDIA-Linux-X86_64-[YOURVERSION].run --no-kernel-module`  
->>>### 到了这一步可以看第七步：容器模板，将server版的容器导出为镜像，可供不需要桌面的同学使用
+>>>### 到了这一步可以看第七步：容器模板，将server版的容器导出为镜像，可供不需要桌面的同学使用（推荐可以使用VSCode安装Remote SSH插件连接远程服务器）
 >>## 3. 安装图形化界面  
 >>>### 刷新源
 >>>>`sudo apt update`  
@@ -142,10 +142,10 @@
 >>> [xrdp解决声音重定向](http://c-nergy.be/blog/?p=12469 "redirect Sound") 
 >>## 5. 远程连接测试  
 >>>### 端口转发   
->>>在安装好XRDP后，与之前一样，因为我们ping不通容器，所以我们需要将xrdp的端口转发到宿主机上  
->>>>`sudo iptables -t nat -A PREROUTING -d 172.22.24.126 -p tcp --dport 60611 -j DNAT --to-destination 10.152.210.183:3389`  
+>>>在安装好XRDP后，与之前一样，因为我们ping不通容器，所以我们需要使用宿主机的端口号监听容器的xrdp的端口 
+>>>>`sudo lxc config device add test proxy1 proxy listen=tcp:172.22.24.126:60611 connect=tcp:10.152.210.183:3389 bind=host`  
 >>>### 远程连接  
->>>>60611是我们定的端口号，通过宿主机的60611端口号映射到容器中3389端口号（XRDP默认端口号）  
+>>>>60611是我们定的端口号，通过宿主机的60611端口号监听容器中3389端口号（XRDP默认端口号）  
 >>>可以通过windows的远程连接来使用容器(windows运行mstsc)  
 >>>>![my-logo.png](image/ubuntu.png "my-logo")  
 >>>>接下来就是当普通的ubuntu来使用，比如可以找一些教程：安装完ubuntu必做的事等等  
@@ -187,16 +187,6 @@
 >>>>`watch -n0.1 nvidia-smi`  
 
 ># 第六步：容器管理  
->>## 端口转发表管理  
->>>由于我们用端口转发的方式来连接容器，不过宿主机重启时会丢失路由表规则  
->>>### 列出端口规则  
->>>>`sudo iptables -t nat -L PREROUTING --line-number`  
->>>### 删除第一行的规则  
->>>>`sudo iptables -t nat -D PREROUTING 1`  
->>>### 保存规则（防止重启后转发表丢失）
->>>>`sudo netfilter-persistent save`  
->>>### 恢复保存的转发规则  
->>>>`sudo netfilter-persistent reload`
 >>>### 查看zfs储存卷的占用情况
 >>>`zpool list`  
 >>## 为容器修改参数配置  
@@ -300,13 +290,13 @@
 >>>`lxc image import metadata.tar.gz rootfs.tar.gz --alias manjaro_demo`
 >>### 接下来便可以当做正常的镜像使用
 >>![manjaro04.png](image/manjaro04.png "manjaro_test") 
->>### 在lxd-3.0.3版本中的arch系不能自动获取ipv4，可以安装更高版本的lxd(使用snap安装)，或者每次重启容器时进容器手动获取
+>>### 在lxd-3.0.3版本中的arch系容器不能自动获取ipv4，可以安装更高版本的lxd(使用snap安装)，或者每次重启容器时进容器手动获取
 >>>`lxc exec manjaro-test bash`  
 >>>`ip a`  
 >>>`ip link set eth0 up`  
 >>>`dhcpcd eth0`  
 >>![manjaro05.png](image/manjaro05.png "manjaro_net") 
 >>### 接下来就是为新容器添加显卡，并配置它的硬件参数，安装与宿主机一样版本的NVIDIA、CUDA、cuDNN驱动(可能会遇到gcc版本问题，降级即可)
->>### 目前测试成功的有manjaro、deepin（deepin15.11的xrdp连接后dock栏消失，作死升级uos后无异常，因此deepin v20也能成功）
+>>### 目前测试成功的有manjaro、deepin（deepin直接安装xrdp）
 >>![manjaro06.png](image/manjaro06.png "manjaro_test") 
 >>![deepin.png](image/deepin.png "deepin_test") 
