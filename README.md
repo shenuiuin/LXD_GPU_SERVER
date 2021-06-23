@@ -220,27 +220,27 @@
 >![my-logo.png](image/图片17.png "my-logo") 
 >![my-logo.png](image/图片18.png "my-logo") 
 
-># 番外
->## 在lxd容器中使用docker  
+# 番外
+## 使用镜像备份直接导入容器（如果嫌制作容器麻烦或者有问题可直接导入）
+>>### 下载我制作的镜像备份文件(ubuntu2004_xrdp,用户名和密码都为ubuntu)
+>>>`https://pan.baidu.com/s/1AlnyEblEfP1ruIw9sg5Dtw  密码: cb25`
+>>### 拷贝至服务器，在该文件目录下导入镜像
+>>> `lxc image import 4dd4710a11c146cbdbba13d7bc8c9fb69d7dca8fb93680b4a9285d2951b05db6.tar.gz --alias ubuntu_demo`  
+>>### 就可以直接使用导入的镜像来创建容器，容器创建好后为它添加显卡和端口监听（远程连接与SSH)，还有为容器安装显卡驱动（每个人的显卡驱动版本不同，我就没有安装了）
+## 在lxd容器中使用docker  
 >>>`lxc config edit YourContainerName`  
 >>### 在config中添加  
 >>![my-logo.png](image/图片19.png "my-logo")  
 >>### 然后重启容器  
 >>>`lxc restart YourContainerName`  
 >>## [在容器内安装docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/ "docker") 
->## 共享目录
+## 共享目录
 >>### path1为宿主机路径，path2为容器内路径。
 >>>`lxc config set yourContainerName security.privileged true`  
 >>>`lxc config device add privilegedContainerName shareName disk source=path1 path=path2`  
 >>### 若容器内对共享目录沒有权限，只需将宿主机目录路径权限给足  
 >>>`sudo chmod -R 777 path1`
->## 使用镜像备份直接导入容器（如果嫌制作容器麻烦或者有问题可直接导入）
->>### 下载我制作的镜像备份文件(ubuntu2004_xrdp,用户名和密码都为ubuntu)
->>>`https://pan.baidu.com/s/1AlnyEblEfP1ruIw9sg5Dtw  密码: cb25`
->>### 拷贝至服务器，在该文件目录下导入镜像
->>> `lxc image import 4dd4710a11c146cbdbba13d7bc8c9fb69d7dca8fb93680b4a9285d2951b05db6.tar.gz --alias ubuntu_demo`  
->>### 就可以直接使用导入的镜像来创建容器，容器创建好后为它添加显卡和端口监听（远程连接与SSH)，还有为容器安装显卡驱动（每个人的显卡驱动版本不同，我就没有安装了）
->## 使用自定义lxd容器  
+## 使用自定义lxd容器  
 >>### 上述lxd容器只能使用镜像源中，但如果我们想使用自己喜欢的发行版，或者自己已经有一台各方面已经调教满意的linux实体机，不想折腾了。这时候我们便可以将此系统移植到lxd中
 >>### 接下来我以manjaro为例演示
 >>![my-logo.png](image/manjaro01.png "my-logo") 
