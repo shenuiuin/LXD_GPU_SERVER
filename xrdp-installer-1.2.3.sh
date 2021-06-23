@@ -1,13 +1,24 @@
 #!/bin/bash
 #####################################################################################################
-# Script_Name : xrdp-installer-1.2.sh
-# Description : Perform xRDP installation on Ubuntu 16.04,18.04,19.04,19.10 and perform
+# Script_Name : xrdp-installer-1.2.3.sh
+# Description : Perform xRDP installation on Ubuntu 18.04,20.4,20.10,21.04 and perform
 #               additional post configuration to improve end user experience
-# Date : November 2019
+# Date : May 2021
 # written by : Griffon
 # WebSite :http://www.c-nergy.be - http://www.c-nergy.be/blog
-# Version : 1.2
-# History : 1.2   - Adding Support to Ubuntu 20.04 + Removed support for Ubuntu 19.04
+# Version : 1.2.3 
+# History : 1.2.3 - Adding support for Ubuntu 21.04 
+#                 - Removing Support for Ubuntu 16.04.x (End Standard Support)
+#                 - Delete xrdp and xorgxrdp folder when remove option selected
+#                 - Review remove function to detect hwe package U18.04
+#                 - Review, Optimize, Cleanup Code 
+#         : 1.2.2 - Changing Ubuntu repository from be.archive.ubuntu.com to archive.ubuntu.com
+#                 - Bug Fixing - /etc/xrdp/xrdp-installer-check.log not deleted when remove option   
+#                   selected in the script - Force Deletion (Thanks to Hiero for this input)     
+#                 - Bug Fixing - Grab automatically xrdp/xorgxrdp package version to avoid     
+#                   issues when upgrade operation performed (Thanks to Hiero for this input)     
+#         : 1.2.1 - Adding Support to Ubuntu 20.10 + Removed support for Ubuntu 19.10
+#           1.2   - Adding Support to Ubuntu 20.04 + Removed support for Ubuntu 19.04
 #                 - Stricter Check for HWE Package (thanks to Andrej Gantvorg)
 #                 - Changed code in checking where to copy image for login screen customization 
 #                 - Fixed Bug checking SSL group membership 
@@ -102,7 +113,7 @@ Release=$(lsb_release -sr)
 /bin/echo -e "\e[1;33m   !   Installing PreReqs packages..Proceeding.  ! \e[0m"
 /bin/echo -e "\e[1;33m   !---------------------------------------------!\e[0m"
 echo
-sudo apt-get -y install libx11-dev libxfixes-dev libssl-dev libpam0g-dev libtool libjpeg-dev flex bison gettext autoconf libxml-parser-perl libfuse-dev xsltproc libxrandr-dev python-libxml2 nasm fuse pkg-config git intltool checkinstall
+sudo apt-get -y install libx11-dev libxfixes-dev libssl-dev libpam0g-dev libtool libjpeg-dev flex bison gettext autoconf libxml-parser-perl libfuse-dev xsltproc libxrandr-dev python3-libxml2 nasm fuse pkg-config git intltool checkinstall
 echo
 if [ $HWE = "yes" ];
 then
@@ -131,7 +142,6 @@ echo
 Dwnload=$(xdg-user-dir DOWNLOAD)
 cd $Dwnload
 
-
 ## -- Download the xrdp latest files
 echo
 /bin/echo -e "\e[1;32m   !---------------------------------------------!\e[0m"
@@ -154,12 +164,16 @@ git clone https://github.com/neutrinolabs/xorgxrdp.git
 compile_source() { 
 echo
 /bin/echo -e "\e[1;33m   !---------------------------------------------!\e[0m"
-/bin/echo -e "\e[1;33m   !   Compile xRDP packages .......Proceeding.  ! \e[0m"
+/bin/echo -e "\e[1;33m   !   Compile xRDP packages .......Proceeding.  !\e[0m"
 /bin/echo -e "\e[1;33m   !---------------------------------------------!\e[0m"
 echo
 
 #cd ~/Downloads/xrdp
 cd $Dwnload/xrdp
+
+#Get the release version automatically
+pkgver=$(git describe  --abbrev=0 --tags  | cut -dv -f2)
+
 
 sudo ./bootstrap
 sudo ./configure --enable-fuse --enable-jpeg --enable-rfxcodec
@@ -178,17 +192,20 @@ echo
 /bin/echo -e "\e[1;31m   !---------------------------------------------!\e[0m"
 exit
 fi
-sudo checkinstall --pkgname=xrdp --pkgversion=0.9.13 --pkgrelease=1 --default
+sudo checkinstall --pkgname=xrdp --pkgversion=$pkgver --pkgrelease=1 --default
 
 #xorgxrdp package compilation
 echo
 /bin/echo -e "\e[1;33m   !---------------------------------------------!\e[0m"
-/bin/echo -e "\e[1;33m   !   Compile xorgxrdp packages....Proceeding.  ! \e[0m"
+/bin/echo -e "\e[1;33m   !   Compile xorgxrdp packages....Proceeding.  !\e[0m"
 /bin/echo -e "\e[1;33m   !---------------------------------------------!\e[0m"
 echo
 
 #cd ~/Downloads/xorgxrdp 
 cd $Dwnload/xorgxrdp
+
+#Get the release version automatically
+pkgver=$(git describe  --abbrev=0 --tags  | cut -dv -f2)
 
 sudo ./bootstrap 
 sudo ./configure 
@@ -208,7 +225,7 @@ echo
 /bin/echo -e "\e[1;31m   !---------------------------------------------!\e[0m"
 exit
 fi
-sudo checkinstall --pkgname=xorgxrdp --pkgversion=0.2.13 --pkgrelease=1 --default
+sudo checkinstall --pkgname=xorgxrdp --pkgversion=1:$pkgver --pkgrelease=1 --default
 }
 
 #---------------------------------------------------#
@@ -217,7 +234,7 @@ sudo checkinstall --pkgname=xorgxrdp --pkgversion=0.2.13 --pkgrelease=1 --defaul
 enable_service() {
 echo
 /bin/echo -e "\e[1;33m   !---------------------------------------------!\e[0m"
-/bin/echo -e "\e[1;33m   !   Creating xRDP services.......Proceeding.  ! \e[0m"
+/bin/echo -e "\e[1;33m   !   Creating xRDP services.......Proceeding.  !\e[0m"
 /bin/echo -e "\e[1;33m   !---------------------------------------------!\e[0m"
 echo 
 sudo systemctl daemon-reload
@@ -279,7 +296,7 @@ ResultActive=yes
 EOF
 
 #Specific Versions
-if [[ "$version" = *"Ubuntu 19.10"* ]] || [[ "$version" = *"Ubuntu 20.04"* ]] ;
+if [[ "$version" = *"Ubuntu 20.10"* ]] || [[ "$version" = *"Ubuntu 20.04"* ]] || [[ "$version" = *"Ubuntu 21.04"* ]];
 then
 sudo bash -c "cat >/etc/polkit-1/localauthority/50-local.d/46-allow-update-repo.pkla" <<EOF
 [Allow Package Management all Users]
@@ -312,16 +329,11 @@ fi
 #Backup the file before modifying it
 sudo cp /etc/xrdp/startwm.sh /etc/xrdp/startwm.sh.griffon
 
-if  [[ "$version" = *"Ubuntu 16.04"* ]];
-then
-echo
-sudo sed -i "/# auth /a cat >~/.xsession << EOF\n#Unity Xrdp multi-users \n/usr/lib/gnome-session/gnome-session-binary --session=ubuntu &\n/usr/lib/x86_64-linux-gnu/unity/unity-panel-service &\n/usr/lib/unity-settings-daemon/unity-settings-daemon &\nfor indicator in /usr/lib/x86_64-linux-gnu/indicator-*;\ndo\nbasename='basename \\\\\${indicator}'\ndirname='dirname \\\\\${indicator}'\nservice=\\\\\${dirname}/\\\\\${basename}/\\\\\${basename}-service\n\\\\\${service} &\ndone\nunity\nEOF" /etc/xrdp/startwm.sh
-echo
-else 
+#Updating the startwm.sh accordingly 
 echo
 sudo sed -i "4 a #Improved Look n Feel Method\ncat <<EOF > ~/.xsessionrc\nexport GNOME_SHELL_SESSION_MODE=ubuntu\nexport XDG_CURRENT_DESKTOP=ubuntu:GNOME\nexport XDG_CONFIG_DIRS=/etc/xdg/xdg-ubuntu:/etc/xdg\nEOF\n" /etc/xrdp/startwm.sh
 echo
-fi
+
 }
 
 #---------------------------------------------------#
@@ -336,11 +348,11 @@ echo
 echo
 
 # Step 1 - Enable Source Code Repository
-#sudo apt-add-repository -s 'deb http://be.archive.ubuntu.com/ubuntu/ '$codename' main restricted'
-#sudo apt-add-repository -s 'deb http://be.archive.ubuntu.com/ubuntu/ '$codename' restricted universe main multiverse'
-#sudo apt-add-repository -s 'deb http://be.archive.ubuntu.com/ubuntu/ '$codename'-updates restricted universe main multiverse'
-#sudo apt-add-repository -s 'deb http://be.archive.ubuntu.com/ubuntu/ '$codename'-backports main restricted universe multiverse'
-#sudo apt-add-repository -s 'deb http://be.archive.ubuntu.com/ubuntu/ '$codename'-security main restricted universe main multiverse'
+sudo apt-add-repository -s -y 'deb http://archive.ubuntu.com/ubuntu/ '$codename' main restricted'
+sudo apt-add-repository -s -y 'deb http://archive.ubuntu.com/ubuntu/ '$codename' restricted universe main multiverse'
+sudo apt-add-repository -s -y 'deb http://archive.ubuntu.com/ubuntu/ '$codename'-updates restricted universe main multiverse'
+sudo apt-add-repository -s -y 'deb http://archive.ubuntu.com/ubuntu/ '$codename'-backports main restricted universe multiverse'
+sudo apt-add-repository -s -y 'deb http://archive.ubuntu.com/ubuntu/ '$codename'-security main restricted universe main multiverse'
 sudo apt-get update
 
 # Step 2 - Install Some PreReqs
@@ -387,7 +399,14 @@ echo
 echo $Dwnload
 #cd ~/Downloads
 cd $Dwnload
+
+#chek if file exists if not - download it.... 
+if [ -f "griffon_logo_xrdp.bmp" ]
+then
+echo "custom logo file already present..."
+else
 wget http://www.c-nergy.be/downloads/griffon_logo_xrdp.bmp
+fi
 
 #Check if script has run once...
 if [ -f /etc/xrdp/xrdp.ini.griffon ]
@@ -402,7 +421,7 @@ sudo cp /etc/xrdp/xrdp.ini /etc/xrdp/xrdp.ini.griffon
 #Check where to copy the logo file
 if [ -d "/usr/local/share/xrdp" ] 
 then
-    echo "Directory /path/to/dir exists." 
+    echo
 	sudo cp griffon_logo_xrdp.bmp /usr/local/share/xrdp
     sudo sed -i 's/ls_logo_filename=/ls_logo_filename=\/usr\/local\/share\/xrdp\/griffon_logo_xrdp.bmp/g' /etc/xrdp/xrdp.ini
 else
@@ -462,16 +481,51 @@ echo
 /bin/echo -e "\e[1;33m   ! Removing xRDP Packages...                   !\e[0m" 
 /bin/echo -e "\e[1;33m   !---------------------------------------------!\e[0m" 
 echo 
-#remove xrdp package
+
+#remove the xrdplog file created by the script 
+sudo rm /etc/xrdp/xrdp-installer-check.log
+
+#----remove xrdp package
 sudo systemctl stop xrdp
 sudo systemctl disable xrdp
 sudo apt-get autoremove xrdp -y
 sudo apt-get purge xrdp -y
-#remove xorgxrdp
+
+#---remove xorgxrdp
 sudo systemctl stop xorgxrdp
-sudo systemctl disable xorgxrdp 
-sudo apt-get autoremove xorgxrdp -y 
-sudo apt-get purge xorgxrdp -y
+sudo systemctl disable xorgxrdp
+
+if [[ $HWE = "yes" ]] && [[ "$version" = *"Ubuntu 18.04"* ]];
+then
+	sudo apt-get autoremove xorgxrdp-hwe-18.04 -y 
+	sudo apt-get purge xorgxrdp-hwe-18.04 -y
+else
+    sudo apt-get autoremove xorgxrdp -y 
+	sudo apt-get purge xorgxrdp -y
+fi
+
+#---Cleanup files 
+
+#Remove xrdp folder
+if [ -d "$Dwnload/xrdp" ] 
+then
+	sudo rm -rf xrdp
+fi
+
+#Remove xorgxrdp folder
+if [ -d "$Dwnload/xorgxrdp" ] 
+then
+	sudo rm -rf xorgxrdp
+fi
+
+#Remove custom xrdp logo file
+if [ -f "$Dwnload/griffon_logo_xrdp.bmp" ]
+then
+	sudo rm -f  "$Dwnload/griffon_logo_xrdp.bmp"
+fi
+
+sudo systemctl daemon-reload
+
 }
 
 sh_credits()
@@ -482,8 +536,9 @@ echo
 /bin/echo -e "\e[1;36m   ! If Sound option selected, shutdown your machine completely     !\e[0m"
 /bin/echo -e "\e[1;36m   ! start it again to have sound working as expected               !\e[0m"
 /bin/echo -e "\e[1;36m   !                                                                !\e[0m"
-/bin/echo -e "\e[1;36m   ! Credits : Written by Griffon - April 2020                      !\e[0m"
-/bin/echo -e "\e[1;36m   !           www.c-nergy.be -xrdp-installer-v1.2.sh - ver 1.2     !\e[0m"
+/bin/echo -e "\e[1;36m   ! Credits : Written by Griffon - Dec. 2020                       !\e[0m"
+/bin/echo -e "\e[1;36m   !           www.c-nergy.be -xrdp-installer-v$ScriptVer.sh             !\e[0m"
+/bin/echo -e "\e[1;36m   !           ver $ScriptVer                                            !\e[0m"
 /bin/echo -e "\e[1;36m   !----------------------------------------------------------------!\e[0m"
 echo
 }
@@ -523,15 +578,17 @@ enable_service
 # Script Version information Displayed              #
 #---------------------------------------------------#
 
+#--Automating Script versioning 
+ScriptVer="1.2.3"
 echo
-/bin/echo -e "\e[1;36m   !-------------------------------------------------------------!\e[0m"
-/bin/echo -e "\e[1;36m   !   xrdp-installer-1.2 Script                                 !\e[0m"
-/bin/echo -e "\e[1;36m   !   Support U16.04/18.04/19.10/20.04                          !\e[0m"
-/bin/echo -e "\e[1;36m   !   Written by Griffon - April 2020 - www.c-nergy.be          !\e[0m"
-/bin/echo -e "\e[1;36m   !                                                             !\e[0m"
-/bin/echo -e "\e[1;36m   !   For Help and Syntax, type ./xrdp-installer-1.2.sh -h      !\e[0m"
-/bin/echo -e "\e[1;36m   !                                                             !\e[0m"
-/bin/echo -e "\e[1;36m   !-------------------------------------------------------------!\e[0m"
+/bin/echo -e "\e[1;36m   !---------------------------------------------------------------!\e[0m"
+/bin/echo -e "\e[1;36m   !   xrdp-installer-$ScriptVer Script                                 !\e[0m"
+/bin/echo -e "\e[1;36m   !   Support 18.04/20.04/20.10/21.04                             !\e[0m"
+/bin/echo -e "\e[1;36m   !   Written by Griffon - Nov 2020 - www.c-nergy.be              !\e[0m"
+/bin/echo -e "\e[1;36m   !                                                               !\e[0m"
+/bin/echo -e "\e[1;36m   !   For Help and Syntax, type ./xrdp-installer-$ScriptVer.sh -h      !\e[0m"
+/bin/echo -e "\e[1;36m   !                                                               !\e[0m"
+/bin/echo -e "\e[1;36m   !---------------------------------------------------------------!\e[0m"
 echo
 
 #----------------------------------------------------------#
@@ -545,15 +602,15 @@ do
                 echo "Usage Syntax and Examples"
                 echo
                 echo " --custom or -c           custom xRDP install (compilation from sources)"
-				echo " --loginscreen or -l      customize xRDP login screen"
+		echo " --loginscreen or -l      customize xRDP login screen"
                 echo " --remove or -r           removing xRDP packages"
                 echo " --sound or -s            enable sound redirection in xRDP"
                 echo
                 echo "example                                                      "
                 echo     
-                echo " ./xrdp-installer-1.0.sh -c -s  custom install with sound redirection"
-                echo " ./xrdp-installer-1.0.sh -l     standard install with custom login screen"
-                echo " ./xrdp-installer-1.0.sh        standard install no additional features"
+                echo " ./xrdp-installer-$ScriptVer.sh -c -s  custom install with sound redirection"
+                echo " ./xrdp-installer-$ScriptVer.sh -l     standard install with custom login screen"
+                echo " ./xrdp-installer-$ScriptVer.sh        standard install no additional features"
                 echo
                 exit
     fi
@@ -610,11 +667,7 @@ codename=$(lsb_release -sc)
 
 echo
 /bin/echo -e "\e[1;33m   |-| Detecting Ubuntu version        \e[0m"
-if  [[ "$version" = *"Ubuntu 16.04"* ]];
-then
-	/bin/echo -e "\e[1;32m       |-| Ubuntu Version : $version\e[0m"
-	echo
-elif  [[ "$version" = *"Ubuntu 18.04"* ]];
+if  [[ "$version" = *"Ubuntu 18.04"* ]];
 then
 	/bin/echo -e "\e[1;32m       |-| Ubuntu Version : $version\e[0m"
 	echo
@@ -622,7 +675,11 @@ elif [[ "$version" = *"Ubuntu 20.04"* ]];
 then
 	/bin/echo -e "\e[1;32m       |-| Ubuntu Version : $version\e[0m"
 	echo
-elif [[ "$version" = *"Ubuntu 19.10"* ]];
+elif [[ "$version" = *"Ubuntu 20.10"* ]];
+then
+	/bin/echo -e "\e[1;32m       |-| Ubuntu Version : $version\e[0m"
+	echo
+elif [[ "$version" = *"Ubuntu 21.04"* ]];
 then
 	/bin/echo -e "\e[1;32m       |-| Ubuntu Version : $version\e[0m"
 	echo
@@ -630,7 +687,7 @@ else
 	/bin/echo -e "\e[1;31m  !--------------------------------------------------------------!\e[0m"
 	/bin/echo -e "\e[1;31m  ! Your system is not running a supported version               !\e[0m"
 	/bin/echo -e "\e[1;31m  ! The script has been tested only on the following versions    !\e[0m"
-	/bin/echo -e "\e[1;31m  ! U16.04.x/18.04.x/19.10/20.04.x                               !\e[0m"
+	/bin/echo -e "\e[1;31m  ! U16.04.x/18.04.x/19.10/20.0X                                 !\e[0m"
 	/bin/echo -e "\e[1;31m  ! The script is exiting...                                     !\e[0m"             
 	/bin/echo -e "\e[1;31m  !--------------------------------------------------------------!\e[0m"
 	echo
@@ -671,27 +728,15 @@ echo
 /bin/echo -e "\e[1;36m   !----------------------------------------------------------------!\e[0m"
 /bin/echo -e "\e[1;36m   ! INFO : xrdp-install script ran at least once on this computer. !\e[0m" 
 /bin/echo -e "\e[1;36m   !----------------------------------------------------------------!\e[0m"
-else
-if  [[ "$version" = *"Ubuntu 16.04"* ]];
-then
-	echo
-	/bin/echo -e "\e[1;36m   !-------------------------------------------------------------!\e[0m"
-	/bin/echo -e "\e[1;36m   !  Custom Installation for Ubuntu 16.04.x                     !\e[0m"
-	/bin/echo -e "\e[1;36m   !-------------------------------------------------------------!\e[0m"
-	echo
-	install_custom
-	install_common
-	
 fi
  
 #---------------------------------------------------------------------------------------
 #- If custom option detected, additional check for U16.04 so skipped
 #----------------------------------------------------------------------------------------
 
-if  [[ "$version" != *"Ubuntu 16.04"* ]];
+
+if [ "$adv" = "yes" ];
 then
-	if [ "$adv" = "yes" ];
-	then
 		echo
 		/bin/echo -e "\e[1;36m   !-------------------------------------------------------------!\e[0m"
 		/bin/echo -e "\e[1;36m   !  Custom Installation Option Selected.....                   !\e[0m"
@@ -701,7 +746,7 @@ then
 		install_tweak
 		install_common
 		
-	else
+else
 		echo
 		/bin/echo -e "\e[1;36m   !-------------------------------------------------------------!\e[0m"
 		/bin/echo -e "\e[1;36m   !  Standard Installation Mode Selected - U18.04 and later     !\e[0m"
@@ -711,9 +756,8 @@ then
 		install_tweak
 		install_common
 		
-	fi  #end if Adv option
-fi  # end if version check not like U16.04
-fi  # End check if file exists
+fi  #end if Adv option
+
 #---------------------------------------------------------------------------------------
 #- Check for Additional Options selected 
 #----------------------------------------------------------------------------------------

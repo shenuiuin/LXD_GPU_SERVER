@@ -47,6 +47,7 @@
 >>>![my-logo.png](image/图片4.png "my-logo")  
 
 ># 第三步：容器的创建  
+>>### 如果你嫌这一步制作容器母本比较麻烦，或者在安装远程连接软件出现问题，你可直接使用镜像备份直接导入我制作好的带桌面可远程的容器(容器不带英伟达驱动)，详情在后面
 >>## 加速源  
 >>>### 使用清华的镜像源（加速创建）  
 >>>>`sudo lxc remote add tuna-images https://mirrors.tuna.tsinghua.edu.cn/lxc-images/ --protocol=simplestreams --public`  
@@ -209,13 +210,15 @@
 >>>## 将test容器保存为ubuntudemo镜像  
 >>>>`sudo lxc publish test --alias ubuntudemo --public`  
 >>## 从模板镜像中新建容器
->>以后直接用模板镜像来创建容器，容器创建好后为它添加端口映射（远程连接与SSH）  
->>还要为它添加显卡（显卡驱动已经有了）并配置它的硬件参数，(可使用默认配置文件，使得新容器的参数继承于它，这一步就可以省略)
+>>以后直接用模板镜像来创建容器，容器创建好后修改它的配置文件：添加端口映射（远程连接与SSH）、添加显卡（显卡驱动已经有了）、配置硬件参数，(可使用默认配置文件，使得新容器的参数继承于它，这一步就可以省略)
 >>![my-logo.png](image/图片15.png "my-logo") 
-# [成果展示（双屏~声音）](https://www.bilibili.com/video/av61400281 "哔哩哔哩") 
-![my-logo.png](image/图片16.png "my-logo") 
-![my-logo.png](image/图片17.png "my-logo") 
-![my-logo.png](image/图片18.png "my-logo") 
+
+># [成果展示（双屏~声音）](https://www.bilibili.com/video/av61400281 "哔哩哔哩") 
+># [用户手册](lxd容器使用说明/普通用户使用.md "用户手册")
+># [管理员手册](lxd容器使用说明/管理员.md "管理员手册")
+>![my-logo.png](image/图片16.png "my-logo") 
+>![my-logo.png](image/图片17.png "my-logo") 
+>![my-logo.png](image/图片18.png "my-logo") 
 
 ># 番外
 >## 在lxd容器中使用docker  
@@ -224,13 +227,19 @@
 >>![my-logo.png](image/图片19.png "my-logo")  
 >>### 然后重启容器  
 >>>`lxc restart YourContainerName`  
->>## [安装docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/ "docker") 
+>>## [在容器内安装docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/ "docker") 
 >## 共享目录
 >>### path1为宿主机路径，path2为容器内路径。
 >>>`lxc config set yourContainerName security.privileged true`  
 >>>`lxc config device add privilegedContainerName shareName disk source=path1 path=path2`  
->>### 若容器内沒有对共享目录沒有权限，只需将宿主机目录路径权限给足  
+>>### 若容器内对共享目录沒有权限，只需将宿主机目录路径权限给足  
 >>>`sudo chmod -R 777 path1`
+>## 使用镜像备份直接导入容器（如果嫌制作容器麻烦或者有问题可直接导入）
+>>### 下载我制作的镜像备份文件(ubuntu2004_xrdp,用户名和密码都为ubuntu)
+>>>`https://pan.baidu.com/s/1AlnyEblEfP1ruIw9sg5Dtw  密码: cb25`
+>>### 拷贝至服务器，在该文件目录下导入镜像
+>>> `lxc image import 4dd4710a11c146cbdbba13d7bc8c9fb69d7dca8fb93680b4a9285d2951b05db6.tar.gz --alias ubuntu_demo`  
+>>### 就可以直接使用导入的镜像来创建容器，容器创建好后为它添加显卡和端口监听（远程连接与SSH)，还有为容器安装显卡驱动（每个人的显卡驱动版本不同，我就没有安装了）
 >## 使用自定义lxd容器  
 >>### 上述lxd容器只能使用镜像源中，但如果我们想使用自己喜欢的发行版，或者自己已经有一台各方面已经调教满意的linux实体机，不想折腾了。这时候我们便可以将此系统移植到lxd中
 >>### 接下来我以manjaro为例演示
@@ -259,7 +268,7 @@
 >>### 测试远程连接，虚拟机可能需要桥接网卡才能访问
 >>![manjaro-rdp.png](image/manjaro02.png "manjaro-rdp") 
 >>### 准备一个linux live cd,可以使用ubuntu、manjaro等，实体机需要制作启动盘，使用rufus刻录即可
->>### 实体机U盘启动，虚拟机直接挂载镜像
+>>### 实体机U盘启动，虚拟机直接挂载镜像进入live cd
 >>### 查看分区
 >>>`sudo fdisk -l`  
 >>![manjaro03.png](image/manjaro03.png "manjaro_disk") 
@@ -290,11 +299,12 @@
 >>>`lxc image import metadata.tar.gz rootfs.tar.gz --alias manjaro_demo`
 >>### 接下来便可以当做正常的镜像使用
 >>![manjaro04.png](image/manjaro04.png "manjaro_test") 
->>### 在lxd-3.0.3版本中的arch系容器不能自动获取ipv4，可以安装更高版本的lxd(使用snap安装)，或者每次重启容器时进容器手动获取
+>>### 可能有些容器不能自动获取ipv4，可以在重启容器时进容器手动获取后添加dhclient开机自启
 >>>`lxc exec manjaro-test bash`  
 >>>`ip a`  
 >>>`ip link set eth0 up`  
 >>>`dhcpcd eth0`  
+>>>`systemctl enable dhclient`
 >>![manjaro05.png](image/manjaro05.png "manjaro_net") 
 >>### 接下来就是为新容器添加显卡，并配置它的硬件参数，安装与宿主机一样版本的NVIDIA、CUDA、cuDNN驱动(可能会遇到gcc版本问题，降级即可)
 >>### 目前测试成功的有manjaro、deepin（deepin直接安装xrdp）
