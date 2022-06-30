@@ -133,7 +133,7 @@
 >>>### 脚本会下载一些文件，需要有Downloads文件夹    
 >>>>`mkdir -p ~/Downloads`    
 >>>###  安装脚本  
->>>>`./xrdp-installer-1.2.sh -c -l -s`    
+>>>>`./xrdp-installer-1.4.2.sh -c -l -s`    
 >>>### 安装完成    
 >>![my-logo.png](image/图片6.png "my-logo")  
 >>>### [脚本源地址](http://c-nergy.be/blog/?cat=79 "xrdp.sh")  
